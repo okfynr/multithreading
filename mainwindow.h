@@ -11,6 +11,7 @@ class QGridLayout;
 class QLineEdit;
 class QLabel;
 class QPushButton;
+class QSpinBox;
 
 class MainWindow : public QMainWindow
 {
@@ -30,6 +31,8 @@ class MainWindow : public QMainWindow
 	QLineEdit * _input2_12;
 	QLineEdit * _input2_21;
 	QLineEdit * _input2_22;
+
+	QSpinBox * _mat_size;
 
 	QLabel * _output_11;
 	QLabel * _output_12;

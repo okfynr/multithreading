@@ -3,25 +3,18 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QSpinBox>
 #include <random>
 #include <chrono>
 
 
+#include "gausswgt.h"
 #include "mainwindow.h"
 #include "multi_funcs.h"
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 {
-
-
-
-//	Create a QTabWidget.
-//	Create a QWidget for each of the pages in the tab dialog, but do not specify parent widgets for them.
-//	Insert child widgets into the page widget, using layouts to position them as normal.
-//	Call addTab() or insertTab() to put the page widgets into the tab widget, giving each tab a suitable label
-//	with an optional keyboard shortcut.
-
 	_tabs = new QTabWidget(this);
 
 	QWidget * widget_muls = new QWidget();
@@ -39,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
 	_input2_21 = new QLineEdit("10", this);
 	_input2_22 = new QLineEdit("11", this);
 
+	_mat_size = new QSpinBox(this);
+	_mat_size->setRange(2, 200);
 	_output_11 = new QLabel("00", this);
 	_output_12 = new QLabel("01", this);
 	_output_21 = new QLabel("10", this);
@@ -56,6 +51,9 @@ MainWindow::MainWindow(QWidget *parent)
 	_grid->addWidget(_input2_22, 1, 3);
 
 
+	_grid->addWidget(new QLabel("matrix size:"), 3, 2);
+	_grid->addWidget(_mat_size, 3, 3);
+
 	_grid->addWidget(_output_11, 3, 0);
 	_grid->addWidget(_output_12, 3, 1);
 	_grid->addWidget(_output_21, 4, 0);
@@ -66,10 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
 	widget_muls->setLayout(_grid);
 	_tabs->addTab(widget_muls, "multiplies");
 
-	QWidget * widget_gauss = new QWidget();
-	QGridLayout * gauss_lay = new QGridLayout(widget_gauss);
-
-	widget_gauss->setLayout(gauss_lay);
+	GaussWgt * widget_gauss = new GaussWgt();
 	_tabs->addTab(widget_gauss, "Gauss");
 
 	setCentralWidget(_tabs);
@@ -103,7 +98,11 @@ void MainWindow::computation()
 
 
 	auto start = std::chrono::steady_clock::now();
-	result(_input1, _input2, _output);
+
+	size_t mat_size;
+	mat_size = static_cast<size_t>(_mat_size->value());
+
+	result(_input1, _input2, _output, mat_size);
 	auto stop = std::chrono::steady_clock::now();
 	double time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 	qDebug() << "time: " << time;

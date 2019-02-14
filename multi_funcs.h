@@ -12,21 +12,6 @@
 #include "thrsafe_pushable_vector.h"
 #include "densify.h"
 
-void sum(double a, double b, double & out)
-{
-	out = a + b;
-}
-
-void slow_sum(double a, double b, double & out)
-{
-	size_t i = 1e18;
-	while(i > 1)
-	{
-		out = a + b;
-		--i;
-	}
-}
-
 
 template<typename T>
 void mul(T & input1, T & input2, size_t ind_x, size_t ind_y, double & result,
@@ -66,7 +51,7 @@ void multi_mul(T & input1, T & input2, size_t num, size_t range, std::vector<dou
 
 }
 
-void result(std::vector<double> & input1, std::vector<double> & input2, std::vector<double> & output)
+void result(std::vector<double> & input1, std::vector<double> & input2, std::vector<double> & output, size_t mat_size)
 {
 	if(input1.size() < 4)
 	{
@@ -81,45 +66,23 @@ void result(std::vector<double> & input1, std::vector<double> & input2, std::vec
 	output.clear();
 	output.resize(4);
 
-/*	for(size_t i = 0; i < output.size(); ++i)
-	{
-		slow_sum(input1[i], input2[i], output[i]);
-	}
-	std::vector<std::thread> t;
-	for(size_t i = 0; i < output.size(); ++i)
-	{
-		t.push_back(std::thread(slow_sum, input1[i], input2[i], std::ref(output[i])));
-	}
-	std::for_each(t.begin(), t.end(), std::mem_fn(&std::thread::join));
-	qDebug() << "conc:" << std::thread::hardware_concurrency();
-
-
-*/
-
-//	Eigen::Matrix2d input1e;
-//	input1e << input1[0], input1[1],
-//			   input1[2], input1[3];
-//	Eigen::Matrix2d input2e;
-//	input2e << input2[0], input2[1],
-//			   input2[2], input2[3];
-
-	const size_t mat_size(200);
+	Eigen::Index matsize(static_cast<Eigen::Index>(mat_size));
 
 
 	Eigen::MatrixXd input1e;
-	input1e.resize(mat_size, mat_size);
+	input1e.resize(matsize, matsize);
 	input1e.setZero();
 	input1e(0, 0) = input1[0];
-	input1e(0, mat_size - 1) = input1[1];
-	input1e(mat_size - 1, 0) = input1[2];
-	input1e(mat_size - 1, mat_size - 1) = input1[3];
+	input1e(0, matsize - 1) = input1[1];
+	input1e(matsize - 1, 0) = input1[2];
+	input1e(matsize - 1, matsize - 1) = input1[3];
 	Eigen::MatrixXd input2e;
-	input2e.resize(mat_size, mat_size);
+	input2e.resize(matsize, matsize);
 	input2e.setZero();
 	input2e(0, 0) = input2[0];
-	input2e(0, mat_size - 1) = input2[1];
-	input2e(mat_size - 1, 0) = input2[2];
-	input2e(mat_size - 1, mat_size - 1) = input2[3];
+	input2e(0, matsize - 1) = input2[1];
+	input2e(matsize - 1, 0) = input2[2];
+	input2e(matsize - 1, matsize - 1) = input2[3];
 
 	densify(input1e, input1e, mat_size, mat_size, e_edges);
 	densify(input2e, input2e, mat_size, mat_size, e_edges);

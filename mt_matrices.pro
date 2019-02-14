@@ -30,10 +30,12 @@ QMAKE_CXX = /usr/bin/gcc-7
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    gausswgt.cpp
 
 HEADERS += \
         mainwindow.h \
     multi_funcs.h \
     thrsafe_pushable_vector.h \
-    densify.h
+    densify.h \
+    gausswgt.h
