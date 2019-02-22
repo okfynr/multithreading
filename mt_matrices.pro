@@ -31,7 +31,8 @@ QMAKE_CXX = /usr/bin/gcc-7
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    gausswgt.cpp
+    gausswgt.cpp \
+    densify.cpp
 
 HEADERS += \
         mainwindow.h \
