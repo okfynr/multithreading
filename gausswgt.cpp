@@ -8,6 +8,7 @@
 #include <QSpinBox>
 
 #include "gausswgt.h"
+#include "gauss_compute.h"
 
 GaussWgt::GaussWgt(QWidget *parent) : QWidget(parent)
 {
@@ -60,10 +61,29 @@ GaussWgt::GaussWgt(QWidget *parent) : QWidget(parent)
 
 void GaussWgt::computation()
 {
+
+
+	size_t mat_size;
+	mat_size = static_cast<size_t>(_matrix_size_box->value());
+
+	std::vector<double> input;
+
+	input.push_back(_input_00->text().toDouble());
+	input.push_back(_input_01->text().toDouble());
+	input.push_back(_input_02->text().toDouble());
+	input.push_back(_input_10->text().toDouble());
+	input.push_back(_input_11->text().toDouble());
+	input.push_back(_input_12->text().toDouble());
+	input.push_back(_input_20->text().toDouble());
+	input.push_back(_input_21->text().toDouble());
+	input.push_back(_input_22->text().toDouble());
+
+
+
 	switch(_choose_type->currentData().toInt())
 	{
 	case 0:
-		qDebug() << "solve system";
+		simple_gauss_computation(input, mat_size);
 		break;
 	case 1:
 		qDebug() << "inverse matrix";

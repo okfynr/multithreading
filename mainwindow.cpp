@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
 	_tabs = new QTabWidget(this);
 
-	QWidget * widget_muls = new QWidget();
+	QWidget * widget_muls = new QWidget(_tabs);
 	_grid = new QGridLayout(widget_muls);
 
 	_buttonCompute = new QPushButton("compute", this);
@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
 	widget_muls->setLayout(_grid);
 	_tabs->addTab(widget_muls, "multiplies");
 
-	GaussWgt * widget_gauss = new GaussWgt();
+	GaussWgt * widget_gauss = new GaussWgt(_tabs);
 	_tabs->addTab(widget_gauss, "Gauss");
 
 	setCentralWidget(_tabs);

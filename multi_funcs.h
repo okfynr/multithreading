@@ -15,7 +15,7 @@
 
 template<typename T>
 void mul(T & input1, T & input2, size_t ind_x, size_t ind_y, double & result,
-		 thrsafe_pushable_vector<std::string> & log)
+		 thrsafe_vector<std::string> & log)
 {
 	if(input2.cols() != input1.rows()) {
 		result = qQNaN();
@@ -35,7 +35,7 @@ void mul(T & input1, T & input2, size_t ind_x, size_t ind_y, double & result,
 
 template<typename T>
 void multi_mul(T & input1, T & input2, size_t num, size_t range, std::vector<double> & results,
-			   thrsafe_pushable_vector<std::string> & log)
+			   thrsafe_vector<std::string> & log)
 {
 	//qDebug() << "from" << num << "to " << (num + range);
 	log.push_back(std::string("from ") + std::to_string(num) + std::string(" to ") + std::to_string(num + range));
@@ -99,7 +99,7 @@ void result(std::vector<double> & input1, std::vector<double> & input2, std::vec
 							? (std::thread::hardware_concurrency() - 1)
 							: (input1e.cols() * input1e.rows()));
 
-	thrsafe_pushable_vector<std::string> log;
+	thrsafe_vector<std::string> log;
 
 
 	if(std::thread::hardware_concurrency() < (input1e.cols() * input1e.rows())){

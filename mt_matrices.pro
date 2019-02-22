@@ -38,4 +38,5 @@ HEADERS += \
     multi_funcs.h \
     thrsafe_pushable_vector.h \
     densify.h \
-    gausswgt.h
+    gausswgt.h \
+    gauss_compute.h
