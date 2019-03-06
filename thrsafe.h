@@ -1,11 +1,11 @@
-#ifndef THRSAFE_PUSHABLE_VECTOR_H
-#define THRSAFE_PUSHABLE_VECTOR_H
+#ifndef THRSAFE_H
+#define THRSAFE_H
 
 
 #include <vector>
 #include <mutex>
 
-template<typename T>
+template <typename T>
 class thrsafe_vector
 {
 private:
@@ -18,6 +18,7 @@ public:
 		std::lock_guard<std::mutex> lock(other.m);
 		data = other.data;
 	}
+	thrsafe_vector(thrsafe_vector && other) = delete;
 	thrsafe_vector & operator=(const thrsafe_vector &) = delete;
 	void push_back(T value)
 	{
@@ -34,7 +35,29 @@ public:
 		std::lock_guard<std::mutex> lock(m);
 		return data;
 	}
+	void operator()();
+	void operator[](size_t);
+	void resize();
 };
 
+template <typename T>
+class matrix
+{
+private:
+	thrsafe_vector<thrsafe_vector<T>> data;
+	mutable std::mutex m;
 
-#endif // THRSAFE_PUSHABLE_VECTOR_H
+public:
+	matrix() {}
+	matrix & operator=(const matrix &) = delete;
+	void operator()();
+	void swap();
+	void row();
+	void rows();
+	void resize();
+	void setZero();
+	void cols();
+	void col(); //??
+};
+
+#endif // THRSAFE_H

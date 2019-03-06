@@ -37,7 +37,7 @@ SOURCES += \
 HEADERS += \
         mainwindow.h \
     multi_funcs.h \
-    thrsafe_pushable_vector.h \
+    thrsafe.h \
     densify.h \
     gausswgt.h \
     gauss_compute.h

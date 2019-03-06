@@ -9,7 +9,7 @@
 
 #include <eigen3/Eigen/Dense>
 
-#include "thrsafe_pushable_vector.h"
+#include "thrsafe.h"
 #include "densify.h"
 
 template<typename T>
@@ -23,40 +23,62 @@ void coeff_use(T & input, Eigen::Index elem_row, Eigen::Index diag_num, double c
 		}
 	}
 
-	log.push_back(std::string("at comp_coeff row: ") + std::to_string(elem_row) + std::string(" ")
-				  + std::string(" iter: ") + std::to_string(input(elem_row, diag_num)));
+//	log.push_back(std::string("at comp_coeff row: ") + std::to_string(elem_row) + std::string(" ")
+//				  + std::string(" iter: ") + std::to_string(input(elem_row, diag_num)));
 }
 
 template<typename T>
 double comp_coeff(T & input, Eigen::Index diag_num, Eigen::Index comp_row_num,
 				  thrsafe_vector<std::string> & log)
 {
-	log.push_back(std::string("at comp_coeff: ") + std::to_string(diag_num) + std::string(" ")
-				  + std::to_string(comp_row_num));
+//	log.push_back(std::string("at comp_coeff: ") + std::to_string(diag_num) + std::string(" ")
+//				  + std::to_string(comp_row_num));
 
 	return input(comp_row_num, diag_num) / input(diag_num, diag_num);
 }
 
-template<typename T>
-void multi_part(T & input, Eigen::Index init_row_ind,
-				thrsafe_vector<std::string> & log)
-{
-//needed: look after std::thread::hardware_concurrency()
 
-//	const auto num_threads(std::thread::hardware_concurrency() < (input1e.cols() * input1e.rows())
-//							? (std::thread::hardware_concurrency() - 1)
-//							: (input1e.cols() * input1e.rows()));
+template<typename T>
+void multi_coeff_use(T & input, Eigen::Index diag_num, Eigen::Index rows_count,
+					 thrsafe_vector<std::string> & log)
+{
+	for(auto j = diag_num; j < rows_count; ++j) {
+		double coeff = comp_coeff(input, diag_num - 1, j, log);
+
+		coeff_use<T>(input, j, diag_num - 1, coeff, log);
+	}
+	log.push_back(std::string("multi_coeff: ") + std::to_string(rows_count) + std::string(" ")
+				  + std::to_string(rows_count));
+}
+
+template<typename T>
+void multi_part(T & input, Eigen::Index init_row_ind, thrsafe_vector<std::string> & log)
+{
+
+	const auto num_threads(std::thread::hardware_concurrency() < (input.rows() - init_row_ind)
+							? (std::thread::hardware_concurrency() - 1)
+							: (input.rows() - init_row_ind));
 
 	std::vector<std::thread> t;
-	for(auto j = init_row_ind; j < input.rows(); ++j) {
-		double coeff = comp_coeff(input, init_row_ind - 1, j, log);
-
-		t.push_back(std::thread(coeff_use<T>, std::ref(input), j, init_row_ind - 1, coeff, std::ref(log)));
 
 
+	if (std::thread::hardware_concurrency() >= (input.rows() - init_row_ind)) {
+		for(auto j = init_row_ind; j < input.rows(); ++j) {
+			double coeff = comp_coeff(input, init_row_ind - 1, j, log);
+			t.push_back(std::thread(coeff_use<T>, std::ref(input), j, init_row_ind - 1, coeff, std::ref(log)));
+		}
+	} else {
+		auto rows_in_thread = input.rows() / num_threads;
+		for(auto j = init_row_ind; j < num_threads - 1; ++j) {
+			t.push_back(std::thread(multi_coeff_use<T>, std::ref(input), j, rows_in_thread, std::ref(log)));
+		}
+		t.push_back(std::thread(multi_coeff_use<T>, std::ref(input),
+								(rows_in_thread * num_threads), (input.rows() - rows_in_thread * num_threads),
+								std::ref(log)));
 	}
-	std::for_each(t.begin(), t.end(), std::mem_fn(&std::thread::join));
 
+
+	std::for_each(t.begin(), t.end(), std::mem_fn(&std::thread::join));
 }
 
 
@@ -133,10 +155,13 @@ void simple_gauss_computation(std::vector<double> & input, size_t mat_size)
 	}
 
 
-//	std::vector<std::string> static_log(log.get_vector());
-//	for (auto & entry : static_log) {
-//		std::cout << entry << std::endl;
-//	}
+	std::vector<std::string> static_log(log.get_vector());
+	std::cout << "log:"  << static_log.size() << std::endl;
+	for (auto & entry : static_log) {
+		std::cout << entry << std::endl;
+	}
+	std::cout << std::endl;
+
 	std::cout << "output:" << std::endl;
 	for (auto i = 0; i < matsize; ++i) {
 		for (auto j = 0; j < matsize; ++j) {
